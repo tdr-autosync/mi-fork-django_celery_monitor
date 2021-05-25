@@ -66,9 +66,10 @@ class MetricsContainer:
     def _check_queue(self, connection, queue_name):
         """Return size of the queue by connection and queue_name."""
         channel = connection.channel()
-        queue_length = channel.client.llen(queue_name)
-        channel.close()
-        return queue_length or 0
+        try:
+            return channel.client.llen(queue_name) or 0
+        finally:
+            channel.close()
 
     def prepare_metrics(self):
         """Gather waiting tasks by queues and worker specific metrics."""
