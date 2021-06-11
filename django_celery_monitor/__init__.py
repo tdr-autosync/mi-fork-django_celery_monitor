@@ -10,7 +10,7 @@ import re
 
 from collections import namedtuple
 
-__version__ = '2.0.0uh'
+__version__ = '2.0.0b2'
 __author__ = 'Jannis Leidel'
 __contact__ = 'jannis@leidel.info'
 __homepage__ = 'https://github.com/jezdez/django-celery-monitor'
