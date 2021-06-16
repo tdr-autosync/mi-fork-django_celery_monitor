@@ -6,6 +6,13 @@
 
 .. _version-1.1.2:
 
+:release-date: 2021-06-16 13:50 a.m. UTC+2
+:release-by: Karol Sztajerwald
+
+- Fixed getting queue length, added Environment to metrics dimensions.
+
+.. _version-1.1.2:
+
 :release-date: 2017-05-18 11:30 a.m. UTC+2
 :release-by: Jannis Leidel
 
