@@ -1,12 +1,14 @@
 """The model managers."""
 from __future__ import absolute_import, unicode_literals
+
 from datetime import timedelta
+
+import django
+from django.db import models, router, transaction
 
 from celery import states
 from celery.events.state import Task
 from celery.utils.time import maybe_timedelta
-import django
-from django.db import models, router, transaction
 
 from .utils import Now
 
@@ -84,7 +86,7 @@ class WorkerStateQuerySet(ExtendedQuerySet):
                 # if no, update the worker state and move on
                 obj, _ = self.select_for_update_or_create(
                     hostname=hostname,
-                    defaults={'last_heartbeat': heartbeat},
+                    defaults={"last_heartbeat": heartbeat},
                 )
         return obj
 
@@ -111,9 +113,9 @@ class TaskStateQuerySet(ExtendedQuerySet):
     def purge(self):
         """Purge all expired task states."""
         with transaction.atomic():
-            self.using(
-                router.db_for_write(self.model)
-            ).filter(hidden=True).delete()
+            self.using(router.db_for_write(self.model)).filter(
+                hidden=True
+            ).delete()
 
     def update_state(self, state, task_id, defaults):
         with transaction.atomic():

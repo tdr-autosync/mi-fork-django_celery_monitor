@@ -1,10 +1,9 @@
 """The Cloudwatch Celery events camera."""
 from __future__ import absolute_import, unicode_literals
 
-from django_celery_monitor.camera import Camera
-
 from celery.utils.log import get_logger
 
+from django_celery_monitor.camera import Camera
 
 logger = get_logger(__name__)
 
@@ -36,9 +35,8 @@ class Metric:
         }
         if self.dimensions:
             metric_data["Dimensions"] = [
-                {
-                    "Name": name, "Value": value
-                } for name, value in self.dimensions.items()
+                {"Name": name, "Value": value}
+                for name, value in self.dimensions.items()
             ]
         return metric_data
 
@@ -85,7 +83,7 @@ class MetricsContainer:
                             "Environment": environment,
                         },
                         unit="Count",
-                        value=self._check_queue(connection, queue.name)
+                        value=self._check_queue(connection, queue.name),
                     )
                 )
         # worker specific
@@ -117,7 +115,7 @@ class MetricsContainer:
                     name="WorkerCompletedTasks",
                     dimensions={
                         "WorkerName": worker,
-                        "Environment": environment
+                        "Environment": environment,
                     },
                     unit="Count",
                     value=sum(statistics.get("total", {}).values()),
@@ -130,11 +128,13 @@ class CloudwatchCamera(Camera):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.app.add_defaults({
-            "cloudwatch_metrics_enabled": False,
-            "cloudwatch_metrics_region_name": None,
-            "cloudwatch_metrics_environment": "",
-        })
+        self.app.add_defaults(
+            {
+                "cloudwatch_metrics_enabled": False,
+                "cloudwatch_metrics_region_name": None,
+                "cloudwatch_metrics_environment": "",
+            }
+        )
 
     def send_metrics(self, state, data):
         """Serialize metrics to json, then send if those are enabled."""

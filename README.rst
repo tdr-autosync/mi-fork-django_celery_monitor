@@ -102,7 +102,7 @@ state entries in the database. Either of the three should be a
 ``datetime.timedelta`` value or ``None``.
 
 - ``cloudwatch_metrics_enabled`` -- Defaults to ``False``
-  
+
   Enable cloudwatch metrics for celery.
 
 - ``cloudwatch_metrics_region_name`` -- Defaults to ``None``
@@ -155,4 +155,3 @@ In your Celery configuration simply set them to override the defaults, e.g.::
 .. |pyimp| image:: https://img.shields.io/pypi/implementation/django-celery-monitor.svg
     :alt: Support Python implementations.
     :target: http://pypi.python.org/pypi/django_celery_monitor/
-

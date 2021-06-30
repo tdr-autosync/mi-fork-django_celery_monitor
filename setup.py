@@ -1,37 +1,40 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import codecs
 import os
 import re
 import sys
-import codecs
 
 import setuptools
 import setuptools.command.test
 
 try:
     import platform
+
     _pyimp = platform.python_implementation
 except (AttributeError, ImportError):
+
     def _pyimp():
-        return 'Python'
+        return "Python"
 
-NAME = 'django_celery_monitor'
 
-E_UNSUPPORTED_PYTHON = '%s 1.0 requires %%s %%s or later!' % (NAME,)
+NAME = "django_celery_monitor"
+
+E_UNSUPPORTED_PYTHON = "%s 1.0 requires %%s %%s or later!" % (NAME,)
 
 PYIMP = _pyimp()
 PY26_OR_LESS = sys.version_info < (2, 7)
 PY3 = sys.version_info[0] == 3
 PY33_OR_LESS = PY3 and sys.version_info < (3, 4)
-PYPY_VERSION = getattr(sys, 'pypy_version_info', None)
+PYPY_VERSION = getattr(sys, "pypy_version_info", None)
 PYPY = PYPY_VERSION is not None
 PYPY24_ATLEAST = PYPY_VERSION and PYPY_VERSION >= (2, 4)
 
 if PY26_OR_LESS:
-    raise Exception(E_UNSUPPORTED_PYTHON % (PYIMP, '2.7'))
+    raise Exception(E_UNSUPPORTED_PYTHON % (PYIMP, "2.7"))
 elif PY33_OR_LESS and not PYPY24_ATLEAST:
-    raise Exception(E_UNSUPPORTED_PYTHON % (PYIMP, '3.4'))
+    raise Exception(E_UNSUPPORTED_PYTHON % (PYIMP, "3.4"))
 
 # -*- Classifiers -*-
 
@@ -57,11 +60,11 @@ classes = """
     Topic :: System :: Distributed Computing
     Topic :: Software Development :: Libraries :: Python Modules
 """
-classifiers = [s.strip() for s in classes.split('\n') if s]
+classifiers = [s.strip() for s in classes.split("\n") if s]
 
 # -*- Distribution Meta -*-
 
-re_meta = re.compile(r'__(\w+?)__\s*=\s*(.*)')
+re_meta = re.compile(r"__(\w+?)__\s*=\s*(.*)")
 re_doc = re.compile(r'^"""(.+?)"""')
 
 
@@ -71,15 +74,15 @@ def add_default(m):
 
 
 def add_doc(m):
-    return (('doc', m.groups()[0]),)
+    return (("doc", m.groups()[0]),)
 
-pats = {re_meta: add_default,
-        re_doc: add_doc}
+
+pats = {re_meta: add_default, re_doc: add_doc}
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, NAME, '__init__.py')) as meta_fh:
+with open(os.path.join(here, NAME, "__init__.py")) as meta_fh:
     meta = {}
     for line in meta_fh:
-        if line.strip() == '# -eof meta-':
+        if line.strip() == "# -eof meta-":
             break
         for pattern, handler in pats.items():
             m = pattern.match(line.strip())
@@ -89,40 +92,46 @@ with open(os.path.join(here, NAME, '__init__.py')) as meta_fh:
 # -*- Installation Requires -*-
 
 
-def strip_comments(l):
-    return l.split('#', 1)[0].strip()
+def strip_comments(line):
+    return line.split("#", 1)[0].strip()
 
 
 def _pip_requirement(req):
-    if req.startswith('-r '):
+    if req.startswith("-r "):
         _, path = req.split()
-        return reqs(*path.split('/'))
+        return reqs(*path.split("/"))
     return [req]
 
 
 def _reqs(*f):
     return [
-        _pip_requirement(r) for r in (
-            strip_comments(l) for l in open(
-                os.path.join(os.getcwd(), 'requirements', *f)).readlines()
-        ) if r]
+        _pip_requirement(req)
+        for req in (
+            strip_comments(line)
+            for line in open(
+                os.path.join(os.getcwd(), "requirements", *f)
+            ).readlines()
+        )
+        if req
+    ]
 
 
 def reqs(*f):
     return [req for subreq in _reqs(*f) for req in subreq]
 
+
 # -*- Long Description -*-
 
-if os.path.exists('README.rst'):
-    long_description = codecs.open('README.rst', 'r', 'utf-8').read()
+if os.path.exists("README.rst"):
+    long_description = codecs.open("README.rst", "r", "utf-8").read()
 else:
-    long_description = 'See http://pypi.python.org/pypi/%s' % (NAME,)
+    long_description = "See http://pypi.python.org/pypi/%s" % (NAME,)
 
 # -*- %%% -*-
 
 
 class pytest(setuptools.command.test.test):
-    user_options = [('pytest-args=', 'a', 'Arguments to pass to py.test')]
+    user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
     def initialize_options(self):
         setuptools.command.test.test.initialize_options(self)
@@ -130,28 +139,29 @@ class pytest(setuptools.command.test.test):
 
     def run_tests(self):
         import pytest
+
         sys.exit(pytest.main(self.pytest_args))
 
 
 setuptools.setup(
     name=NAME,
-    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
-    version=meta['version'],
-    description=meta['doc'],
+    packages=setuptools.find_packages(exclude=["tests", "tests.*"]),
+    version=meta["version"],
+    description=meta["doc"],
     long_description=long_description,
-    keywords='celery django events monitoring',
-    author=meta['author'],
-    author_email=meta['contact'],
-    url=meta['homepage'],
-    platforms=['any'],
-    license='BSD',
+    keywords="celery django events monitoring",
+    author=meta["author"],
+    author_email=meta["contact"],
+    url=meta["homepage"],
+    platforms=["any"],
+    license="BSD",
     classifiers=classifiers,
-    install_requires=reqs('default.txt'),
+    install_requires=reqs("default.txt"),
     extras_require={
         "boto3": "boto3>=1.14.59",
     },
-    tests_require=reqs('test.txt'),
-    cmdclass={'test': pytest},
+    tests_require=reqs("test.txt"),
+    cmdclass={"test": pytest},
     zip_safe=False,
     include_package_data=True,
 )
