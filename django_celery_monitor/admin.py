@@ -8,7 +8,7 @@ from django.contrib.admin.views import main as main_views
 from django.shortcuts import render
 from django.utils.encoding import force_text
 from django.utils.html import escape, format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from celery import current_app
 from celery import states
@@ -94,8 +94,8 @@ def name(task):
     """Return the task name and abbreviates it to maximum of 16 characters."""
     short_name = abbrtask(task.name, 16)
     return format_html(
-        '<div title="{}"><b>{}</b></div>', 
-        escape(task.name), 
+        '<div title="{}"><b>{}</b></div>',
+        escape(task.name),
         escape(short_name)
     )
 
