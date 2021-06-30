@@ -6,6 +6,13 @@
 
 .. _version-1.1.2:
 
+:release-date: 2021-06-30 13:31 a.m. UTC+2
+:release-by: Marcin Kurczewski
+
+- Change ugettext_lazy to gettext_lazy.
+
+.. _version-1.1.2:
+
 :release-date: 2021-06-16 13:50 a.m. UTC+2
 :release-by: Karol Sztajerwald
 
