@@ -6,7 +6,6 @@ from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.views import main as main_views
 from django.shortcuts import render
-from django.utils.encoding import force_text
 from django.utils.html import escape, format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -19,6 +18,11 @@ from celery.utils.text import abbrtask
 from .models import TaskState, WorkerState
 from .humanize import naturaldate
 from .utils import action, display_field, fixedwidth, make_aware
+
+try:
+    from django.utils.encoding import force_text
+except ImportError:
+    from django.utils.encoding import force_str as force_text
 
 
 TASK_STATE_COLORS = {states.SUCCESS: 'green',

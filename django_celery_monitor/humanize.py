@@ -3,8 +3,12 @@ from __future__ import absolute_import, unicode_literals
 
 from datetime import datetime
 
-from django.utils.translation import ungettext, ugettext as _
 from django.utils.timezone import now
+
+try:
+    from django.utils.translation import ungettext, ugettext as _
+except ImportError:
+    from django.utils.translation import ngettext as ungettext, gettext as _
 
 
 def pluralize_year(n):
