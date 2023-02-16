@@ -171,3 +171,67 @@ class test_CloudwatchCamera:
                 assert "default" in caplog.text
                 assert "'Value': 2" in caplog.text
                 assert "'Value': 'dev'" in caplog.text
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures('depends_on_current_app')
+class test_CloudwatchCamera_no_value_dont_send_metrics:
+    Camera = cloudwatch_camera.CloudwatchCamera
+
+    def create_task(self, worker, **kwargs):
+        d = dict(uuid=gen_unique_id(),
+                 name='django_celery_monitor.test.task{0}'.format(next(_ids)),
+                 worker=worker)
+        return Task(**dict(d, **kwargs))
+
+    @pytest.fixture(autouse=True)
+    def setup_app(self, app):
+        self.app = app
+        self.app.add_defaults({
+            "cloudwatch_metrics_enabled": False,
+            "cloudwatch_metrics_environment": "dev",
+            "CELERY_QUEUES": (
+                Queue(
+                    "default",
+                    Exchange("default"),
+                    routing_key="default",
+                ),
+            )
+
+        })
+        self.state = State()
+        self.state.app = self.app
+        self.cam = self.Camera(self.state)
+
+    def test_on_shutter(self, caplog):
+        state = self.state
+        cam = self.cam
+
+        ws = ['worker1.ex.com', 'worker2.ex.com', 'worker3.ex.com']
+        uus = [gen_unique_id() for i in range(50)]
+
+        events = [Event('worker-online', hostname=ws[0]),
+                  Event('worker-online', hostname=ws[1]),
+                  Event('worker-online', hostname=ws[2]),
+                  Event('task-received',
+                        uuid=uus[0], name='A', hostname=ws[0]),
+                  Event('task-started',
+                        uuid=uus[0], name='A', hostname=ws[0]),
+                  Event('task-received',
+                        uuid=uus[1], name='B', hostname=ws[1]),
+                  Event('task-revoked',
+                        uuid=uus[2], name='C', hostname=ws[2])]
+
+        for event in events:
+            event['local_received'] = time()
+            state.event(event)
+        with patch(
+            "django_celery_monitor.cloudwatch_camera."
+            "MetricsContainer._check_queue"
+        ) as mocked_check_queue:
+            mocked_check_queue.return_value = 0
+            with caplog.at_level(logging.DEBUG):
+                cam.on_shutter(state)
+                assert "QueueWaitingTasks" not in caplog.text
+                assert "default" not in caplog.text
+                assert "'Value': 0" not in caplog.text

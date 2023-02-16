@@ -77,17 +77,19 @@ class MetricsContainer:
         with self.state.app.pool.acquire(block=False) as connection:
             # waiting in the queue
             for queue in self.state.app.conf.CELERY_QUEUES:
-                self.add(
-                    Metric(
-                        name="QueueWaitingTasks",
-                        dimensions={
-                            "QueueName": queue.name,
-                            "Environment": environment,
-                        },
-                        unit="Count",
-                        value=self._check_queue(connection, queue.name)
+                value = self._check_queue(connection, queue.name)
+                if value:
+                    self.add(
+                        Metric(
+                            name="QueueWaitingTasks",
+                            dimensions={
+                                "QueueName": queue.name,
+                                "Environment": environment,
+                            },
+                            unit="Count",
+                            value=value,
+                        )
                     )
-                )
         # worker specific
         inspect = self.state.app.control.inspect()
         workers_tasks_map = {
@@ -98,31 +100,35 @@ class MetricsContainer:
         }
         for metric, worker_tasks in workers_tasks_map.items():
             for worker, tasks in worker_tasks.items():
-                self.add(
-                    Metric(
-                        name=metric,
-                        dimensions={
-                            "WorkerName": worker,
-                            "Environment": environment,
-                        },
-                        unit="Count",
-                        value=len(tasks),
+                value = len(tasks)
+                if value:
+                    self.add(
+                        Metric(
+                            name=metric,
+                            dimensions={
+                                "WorkerName": worker,
+                                "Environment": environment,
+                            },
+                            unit="Count",
+                            value=value,
+                        )
                     )
-                )
         # completed tasks
         stats = inspect.stats() or {}
         for worker, statistics in stats.items():
-            self.add(
-                Metric(
-                    name="WorkerCompletedTasks",
-                    dimensions={
-                        "WorkerName": worker,
-                        "Environment": environment
-                    },
-                    unit="Count",
-                    value=sum(statistics.get("total", {}).values()),
+            value = sum(statistics.get("total", {}).values())
+            if value:
+                self.add(
+                    Metric(
+                        name="WorkerCompletedTasks",
+                        dimensions={
+                            "WorkerName": worker,
+                            "Environment": environment
+                        },
+                        unit="Count",
+                        value=value,
+                    )
                 )
-            )
 
 
 class CloudwatchCamera(Camera):
@@ -154,7 +160,9 @@ class CloudwatchCamera(Camera):
         metrics = MetricsContainer(state=state)
         metrics.prepare_metrics()
         super().on_shutter(state)
-        self.send_metrics(
-            state=state,
-            data=[metric.serialize() for metric in metrics],
-        )
+        data = [metric.serialize() for metric in metrics]
+        if data:
+            self.send_metrics(
+                state=state,
+                data=data,
+            )
