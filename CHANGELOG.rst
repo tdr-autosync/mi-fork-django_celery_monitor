@@ -4,6 +4,13 @@
  Change history
 ================
 
+.. _version-1.6.2:
+
+:release-date: 2023-03-02 16:11 a.m. UTC+2
+:release-by: Karol Sztajerwald
+
+- Fixed ParamValidationError from aws cli when metrics values were 0.
+
 .. _version-1.1.2:
 
 :release-date: 2021-06-16 13:50 a.m. UTC+2
