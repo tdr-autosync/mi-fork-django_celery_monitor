@@ -4,6 +4,13 @@
  Change history
 ================
 
+.. _version-1.6.5:
+
+:release-date: 2023-06-29
+:release-by: Alexandre Andrade
+
+- Fix test.txt dependency (pytz>dev is not accepted).
+
 .. _version-1.6.2:
 
 :release-date: 2023-03-02 16:11 a.m. UTC+2
