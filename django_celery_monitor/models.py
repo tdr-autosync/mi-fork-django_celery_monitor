@@ -9,7 +9,7 @@ from django.conf import settings
 
 from celery import states
 from celery.events.state import heartbeat_expires
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six import python_2_unicode_compatible
 
 from . import managers
 
