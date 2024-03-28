@@ -23,12 +23,16 @@ class ExtendedQuerySet(models.QuerySet):
         specifying whether an object was created.
         """
 
-        if django.VERSION >= (3, 2):
-            return self.update_or_create(defaults=defaults, **kwargs)
+        if django.VERSION >= (2, 2) and django.VERSION < (3, 2):
+            return self._compat_sub_3_2(defaults=defaults, **kwargs)
 
         elif django.VERSION < (2, 2):
-            return self._compat_sub_2_2(defaults, **kwargs)
+            return self._compat_sub_2_2(defaults=defaults, **kwargs)
 
+        return self.update_or_create(defaults=defaults, **kwargs)
+
+    def _compat_sub_3_2(self, defaults=None, **kwargs):
+        """Compatibility with versions starting from 2.2 but before 3.2."""
         defaults = defaults or {}
         with transaction.atomic(using=self.db):
             try:
