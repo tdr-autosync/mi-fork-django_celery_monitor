@@ -22,10 +22,18 @@ class ExtendedQuerySet(models.QuerySet):
         Return a tuple (object, created), where created is a boolean
         specifying whether an object was created.
         """
-        defaults = defaults or {}
-        if django.VERSION < (2, 2):
-            return self._compat(defaults, **kwargs)
 
+        if django.VERSION >= (2, 2) and django.VERSION < (3, 2):
+            return self._compat_sub_3_2(defaults=defaults, **kwargs)
+
+        elif django.VERSION < (2, 2):
+            return self._compat_sub_2_2(defaults=defaults, **kwargs)
+
+        return self.update_or_create(defaults=defaults, **kwargs)
+
+    def _compat_sub_3_2(self, defaults=None, **kwargs):
+        """Compatibility with versions starting from 2.2 but before 3.2."""
+        defaults = defaults or {}
         with transaction.atomic(using=self.db):
             try:
                 obj = self.select_for_update().get(**kwargs)
@@ -43,7 +51,7 @@ class ExtendedQuerySet(models.QuerySet):
             obj.save(using=self.db)
         return obj, False
 
-    def _compat(self, defaults=None, **kwargs):
+    def _compat_sub_2_2(self, defaults=None, **kwargs):
         """Django 1 compatibility.
 
         This is a backport from Django 1.11
