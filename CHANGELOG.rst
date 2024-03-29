@@ -4,6 +4,13 @@
  Change history
 ================
 
+.. _version-1.7.0:
+
+:release-date: 2024-03-29
+:release-by: Alexandre Andrade
+
+- Compatibility with Python 3.6.
+
 .. _version-1.6.5:
 
 :release-date: 2023-06-29
