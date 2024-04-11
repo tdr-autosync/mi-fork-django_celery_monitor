@@ -9,7 +9,7 @@
 :release-date: 2024-03-29
 :release-by: Alexandre Andrade
 
-- Compatibility with Python 3.6.
+- Compatibility with Django 3.2.
 
 .. _version-1.6.5:
 
